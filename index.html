@@ -35,6 +35,7 @@ footer{border-top:1px solid #253a4b;background:#09131f;padding:40px 0 28px}.foot
 .pro-claim input{margin:8px 0 12px;font-weight:800;letter-spacing:.8px}
 .pro-claim .button{width:100%;margin-top:10px}
 .pro-claim[hidden],#proKeySection[hidden]{display:none}
+#proCheckoutSubmit:disabled{background:#294a56!important;color:#b5ccd2!important;border-color:#3c5d65!important;box-shadow:none!important;cursor:not-allowed;opacity:1}
 </style>
 </head>
 <body>
@@ -56,13 +57,13 @@ footer{border-top:1px solid #253a4b;background:#09131f;padding:40px 0 28px}.foot
 <div class="feature-grid "><article class="feature "><div class="ic" aria-hidden="true">▣</div><h3>План помещения</h3><p>Редактор с размерами, площадью, размещением розеток и светильников.</p></article><article class="feature "><div class="ic" aria-hidden="true">∑</div><h3>Инженерные расчёты</h3><p>Подбор и расчёты для рабочих задач с понятными результатами.</p></article><article class="feature "><div class="ic" aria-hidden="true">≡</div><h3>Сметы и материалы</h3><p>Списки материалов, количество, стоимость и итог по объекту.</p></article><article class="feature "><div class="ic" aria-hidden="true">▥</div><h3>Маркировка щита</h3><p>Подготовка аккуратных подписей автоматов и групп.</p></article><article class="feature "><div class="ic" aria-hidden="true">▧</div><h3>Журнал работ</h3><p>Записи по объектам и отслеживание выполненных задач.</p></article><article class="feature "><div class="ic" aria-hidden="true">⌁</div><h3>Рабочие справочники</h3><p>Схемы, соединения проводников и полезные материалы под рукой.</p></article></div>
 </div></div>
 <div class="section alt"><div class="wrap split"><div><div class="eyebrow">ElectroTools PRO</div><h2>Один платёж.<br>Рабочие инструменты надолго.</h2><p class="sub">Планирование помещений, сметы, маркировка и дополнительные инженерные функции. Без ежемесячной подписки.</p><div class="actions" style="margin-top:24px"><a class="button" href="#buy">Что входит в PRO ↗</a></div></div>
-<div class="price-card"><div class="status"><i></i>Страница оплаты подключена</div><div class="price">799 ₽ <small>один раз</small></div><div class="checkline"><span>✓</span>Пожизненная лицензия PRO</div><div class="checkline"><span>✓</span>Активация ключом (после подключения выдачи ключей)</div><div class="checkline"><span>✓</span>Без автоматических списаний</div></div>
+<div class="price-card"><div class="status"><i></i>Страница оплаты подключена</div><div class="price">799 ₽ <small>один раз</small></div><div class="checkline"><span>✓</span>Пожизненная лицензия PRO</div><div class="checkline"><span>✓</span>Активация ключом, проверка на сервере</div><div class="checkline"><span>✓</span>Без автоматических списаний</div></div>
 </div></div></section>
 
 <section class="view" id="page-buy" data-view="buy">
 <div class="hero"><div class="wrap hero-layout"><div><div class="eyebrow">ElectroTools PRO</div><h1>Больше возможностей.<br><strong>Меньше рутины.</strong></h1>
 <p class="lede">11 профессиональных инструментов: план помещений, сметы, материалы, маркировка щита, отчёты и инженерные расчёты. Одна покупка за 799 ₽, доступ без ежемесячных списаний.</p>
-<div class="status"><i></i>Интеграция оплаты на проверке</div><p class="note">Заказы оформляются отдельно через сервер, оплата проходит на защищённой странице ЮKassa. Публичные продажи пока закрыты до завершения проверки выдачи ключей.</p></div>
+<div class="status" id="checkoutAvailability"><i></i><span id="checkoutAvailabilityText">Проверяем подключение ЮKassa…</span></div><p class="note" id="checkoutAvailabilityNote">PRO уже активируется по ключу. Новые продажи откроются после настройки чеков НПД и проверки выдачи лицензий.</p></div>
 <div class="price-card"><div class="eyebrow">Пожизненный доступ PRO</div><div class="price">799 ₽ <small>один раз</small></div>
 <div class="checkline"><span>✓</span>Все 11 PRO-инструментов</div>
 <div class="checkline"><span>✓</span>Без регулярных платежей</div>
@@ -72,9 +73,9 @@ footer{border-top:1px solid #253a4b;background:#09131f;padding:40px 0 28px}.foot
 <form id="proCheckoutForm" class="pro-checkout-form">
 <label for="proBuyerEmail">Электронная почта для заказа</label>
 <input id="proBuyerEmail" name="email" type="email" inputmode="email" autocomplete="email" maxlength="254" placeholder="you@example.com" required>
-<button id="proCheckoutSubmit" class="button" type="submit">Перейти к оплате · 799 ₽ ↗</button>
+<button id="proCheckoutSubmit" class="button" type="submit" disabled>Проверяем доступность оплаты…</button>
 </form>
-<p id="proCheckoutMessage" class="note" role="status" aria-live="polite">Оплата через ЮKassa. Во время настройки автоматической выдачи ключей оформление новых заказов временно закрыто.</p>
+<p id="proCheckoutMessage" class="note" role="status" aria-live="polite">Статус приёма заказов проверяется автоматически. До включения приёма платежей деньги не списываются.</p>
 <section id="proClaimSection" class="pro-claim" hidden aria-label="Получение PRO-ключа">
 <strong>Ваш заказ ElectroTools PRO</strong>
 <p id="proClaimMessage" role="status" aria-live="polite">Проверяем оплату...</p>
@@ -94,8 +95,8 @@ footer{border-top:1px solid #253a4b;background:#09131f;padding:40px 0 28px}.foot
 </div></div>
 <div class="section alt"><div class="wrap split"><div><div class="eyebrow">Мини-инструмент</div><h2>Проверь расчёт площади</h2><p class="sub">Небольшой пример того, как должны работать инструменты ElectroTools. В PRO-редакторе можно также размещать электроточки, сохранять планы и готовить их к печати.</p>
 <div class="mini-plan"><label class="field">Длина, м<input id="roomLength" type="number" inputmode="decimal" min="0.1" max="999" step="0.1" value="4.2"></label><label class="field">Ширина, м<input id="roomWidth" type="number" inputmode="decimal" min="0.1" max="999" step="0.1" value="3.6"></label><div class="result" aria-live="polite"><small>Площадь</small><strong id="areaResult">15,12 м²</strong></div></div><p class="note" id="perimeterResult">Периметр: 15,60 м</p></div>
-<div><h2>Порядок покупки и активации</h2><div class="steps"><div class="step"><div class="number">1</div><div><strong>Выбрать ElectroTools PRO</strong><p>Перейти к оплате по кнопке выше.</p></div></div><div class="step"><div class="number">2</div><div><strong>Оплатить через ЮKassa</strong><p>Оплата проходит на странице платёжного сервиса.</p></div></div><div class="step"><div class="number">3</div><div><strong>Сохранить чек</strong><p>После подтверждения оплаты сервер выдаёт уникальный ключ. Публичные покупки откроем после проверки полного процесса.</p></div></div><div class="step"><div class="number">4</div><div><strong>Активировать PRO по ключу</strong><p>Эта возможность заработает после подключения системы ключей. Ключ необходимо сохранить.</p></div></div></div></div></div></div>
-<div class="section"><div class="wrap"><h2>Частые вопросы</h2><div class="faq"><details><summary>Это подписка?</summary><p>Нет. Это один платёж 799 ₽ без автоматического продления.</p></details><details><summary>Нужна ли регистрация?</summary><p>Планируется активация с помощью ключа без обязательной регистрации.</p></details><details><summary>Что при смене телефона?</summary><p>Сохраните ключ активации. Отдельная функция восстановления утерянного ключа пока не предусмотрена.</p></details><details><summary>Можно ли уже оплатить?</summary><p>Оформление заказов через сервер проходит тестирование. Покупка временно недоступна, пока не проверена автоматическая выдача ключей и активация PRO.</p></details></div></div></div>
+<div><h2>Порядок покупки и активации</h2><div class="steps"><div class="step"><div class="number">1</div><div><strong>Выбрать ElectroTools PRO</strong><p>Перейти к оплате по кнопке выше.</p></div></div><div class="step"><div class="number">2</div><div><strong>Оплатить через ЮKassa</strong><p>Оплата проходит на странице платёжного сервиса.</p></div></div><div class="step"><div class="number">3</div><div><strong>Сохранить чек</strong><p>После подтверждения оплаты сервер выдаёт уникальный ключ. Публичные покупки откроем после проверки полного процесса.</p></div></div><div class="step"><div class="number">4</div><div><strong>Активировать PRO по ключу</strong><p>Активация уже работает в ElectroTools. Ключ необходимо сохранить.</p></div></div></div></div></div></div>
+<div class="section"><div class="wrap"><h2>Частые вопросы</h2><div class="faq"><details><summary>Это подписка?</summary><p>Нет. Это один платёж 799 ₽ без автоматического продления.</p></details><details><summary>Нужна ли регистрация?</summary><p>Активация доступна по индивидуальному ключу без обязательной регистрации.</p></details><details><summary>Что при смене телефона?</summary><p>Сохраните ключ активации. Отдельная функция восстановления утерянного ключа пока не предусмотрена.</p></details><details><summary>Можно ли уже оплатить?</summary><p>Покупки откроются после настройки чеков НПД и проверки выдачи лицензий. Статус покупки определяется сервером.</p></details></div></div></div>
 </section>
 
 <section class="view" id="page-privacy" data-view="privacy"><div class="wrap legal"><div class="eyebrow">Документы</div><h1>Политика конфиденциальности</h1><p>Актуальная редакция: 23 ноября 2026 года.</p><article><p>Подробнее об обработке данных заказов и лицензий, о хранении на устройстве и правах пользователей в официальной политике.</p><p><a href="privacy.html">Открыть полную Политику конфиденциальности ↗</a></p><p>Обращения: <a href="mailto:electrotools.support@gmail.com">electrotools.support@gmail.com</a> · <a href="https://t.me/ElectroToolsOfficial">Telegram</a>.</p></article></div></section>
@@ -137,11 +138,40 @@ document.addEventListener('DOMContentLoaded',()=>{
  };
  ['roomLength','roomWidth'].forEach(id=>document.getElementById(id).addEventListener('input',calc));calc();
  initializeProCheckout();
+  refreshCheckoutAvailability();
 });
 
 // Checkout is gated server-side (PAYMENTS_ENABLED). This site never stores API secrets.
 const PRO_API = 'https://electrotools-pro-api.xxxalexdandy.workers.dev';
 const PRO_STORAGE = 'electrotools.pro.order.v1';
+let checkoutAvailable=false;
+async function refreshCheckoutAvailability(){
+ const submit=document.getElementById('proCheckoutSubmit');
+ const label=document.getElementById('checkoutAvailabilityText');
+ const note=document.getElementById('checkoutAvailabilityNote');
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),12000);
+ try{
+  const response=await fetch(PRO_API+'/checkout-status',{signal:controller.signal,cache:'no-store'});
+  if(!response.ok)throw Error('Checkout status: '+response.status);
+  const state=await response.json();
+  checkoutAvailable=state.enabled===true;
+  if(checkoutAvailable){
+   label.textContent='ЮKassa подключена · покупка доступна';
+   note.textContent='Заказ по email, оплата на защищённой странице ЮKassa. После оплаты вернитесь сюда за ключом.';
+   submit.textContent='Купить PRO · 799 ₽ ↗';submit.disabled=false;
+  }else{
+   label.textContent='Покупка временно недоступна';
+   note.textContent='Активация ключей работает. Приём новых платежей откроется после настройки чеков НПД и проверки выдачи лицензий.';
+   submit.textContent='Оплата пока закрыта';submit.disabled=true;
+  }
+ }catch(e){
+  checkoutAvailable=false;
+  label.textContent='Нет связи с сервером оплаты';
+  note.textContent='Статус ЮKassa не удалось проверить. Заказ не создаётся, деньги не списываются.';
+  submit.textContent='Оплата недоступна';submit.disabled=true;
+ }finally{clearTimeout(timeout);}
+}
+
 let proPollTimer = null;
 function setProMessage(value) { document.getElementById('proCheckoutMessage').textContent=value; }
 function getProOrder() {
@@ -222,7 +252,8 @@ function initializeProCheckout(){
  });
  form.addEventListener('submit',async ev=>{
   ev.preventDefault();
-  if(!form.reportValidity())return;
+  if(!checkoutAvailable){setProMessage('Оплата пока закрыта. Заказ не создан, деньги не списаны.');return;}
+   if(!form.reportValidity())return;
   const email=document.getElementById('proBuyerEmail').value.trim();
   submit.disabled=true;
   setProMessage('Создаём заказ и защищённую ссылку на оплату...');
@@ -242,7 +273,7 @@ function initializeProCheckout(){
    }
    window.location.assign(paymentURL.href);
   }catch(e){setProMessage('Ошибка связи с сервером. Оплата не началась. Попробуйте позже.');}
-  finally{submit.disabled=false;}
+  finally{submit.disabled=!checkoutAvailable;}
  });
 }
 
