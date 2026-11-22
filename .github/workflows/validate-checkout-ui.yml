@@ -1,0 +1,25 @@
+name: Validate YooKassa checkout UI (no payments)
+on:
+  push:
+    paths: ['.github/workflows/validate-checkout-ui.yml','index.html']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check static site checkout wiring
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          s=Path('index.html').read_text()
+          for required in ("id=\"proCheckoutForm\"","id=\"checkoutAvailability\"","refreshCheckoutAvailability();","if(!checkoutAvailable)","id=\"proCheckoutSubmit\"","PRO_API+'/checkout-status'","'/create-payment'","'/claim-license'"):
+              assert required in s,required
+          assert 'YOOKASSA_SECRET_KEY' not in s
+          js=s.split('<script>',1)[1].split('</script>',1)[0]
+          Path('checkout-validate.js').write_text(js)
+          print('Site preflight: status gate and key claim UI present')
+          PY
+          node --check checkout-validate.js
