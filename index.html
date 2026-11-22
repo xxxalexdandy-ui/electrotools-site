@@ -260,7 +260,28 @@ function initializeProCheckout(){
   try{
    const res=await callProAPI('/create-payment',{email});
    if(!res.ok){
-    setProMessage(res.status===503?'Продажи пока закрыты. Мы завершаем проверку автоматической выдачи ключей.':'Не удалось создать заказ. Деньги не списаны. Попробуйте позже.');
+    let message;
+    const err=res.data||{};
+    if(res.status===502 && err.stage==='yookassa'){
+      const yc=err.providerCode||'unknown';
+      const parameter=err.providerParameter||'';
+      if(err.providerStatus===401 || err.providerStatus===403)
+        message='ЮKassa отклонила авторизацию магазина (HTTP '+err.providerStatus+'). Нужна проверка ключа API и shopId.';
+      else if(err.providerStatus===400 && /receipt|fiscal/i.test(parameter))
+        message='ЮKassa требует проверить настройки чеков в магазине (HTTP 400, '+parameter+'). Автоматическую фискализацию включать не будем.';
+      else
+        message='ЮKassa отклонила запрос: HTTP '+(err.providerStatus||'?')+', код '+yc+(parameter?', поле '+parameter:'')+'. Деньги не списаны.';
+    }else if(res.status===502)
+      message='Сбой соединения Worker с ЮKassa (HTTP 502). Деньги не списаны.';
+    else if(res.status===503)
+      message='Сбой при создании заказа в базе или временная недоступность Worker (HTTP 503).';
+    else if(res.status===403)
+      message='Запрос отклонён Cloudflare или проверкой Origin (HTTP 403). Деньги не списаны.';
+    else if(res.status===400)
+      message='Сервер отклонил параметры заказа (HTTP 400). Проверьте адрес электронной почты.';
+    else
+      message='Не удалось создать заказ (HTTP '+res.status+'). Деньги не списаны.';
+    setProMessage(message);
     return;
    }
    const data=res.data;
