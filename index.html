@@ -266,7 +266,7 @@ function initializeProCheckout(){
    const data=res.data;
    if(!/^[a-f0-9-]{36}$/.test(data.orderId||'')|| !/^[A-Za-z0-9_-]{43}$/.test(data.claimToken||''))throw new Error('Incomplete checkout details');
    const paymentURL=new URL(data.paymentUrl);
-   if(paymentURL.protocol!=='https:' || !(paymentURL.hostname==='yookassa.ru'||paymentURL.hostname.endsWith('.yookassa.ru'))){throw new Error('Unrecognized payment URL');}
+   if(paymentURL.protocol!=='https:' || !['yookassa.ru','yoomoney.ru'].some(host=>paymentURL.hostname===host||paymentURL.hostname.endsWith('.'+host))){throw new Error('Unrecognized payment URL');}
    if(!saveProOrder({orderId:data.orderId,claimToken:data.claimToken,createdAt:Date.now()})){
     setProMessage('Браузер блокирует хранение данных заказа. Оплата не открыта, разрешите хранение данных сайта.');
     return;
