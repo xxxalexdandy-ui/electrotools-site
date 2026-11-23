@@ -1,0 +1,58 @@
+name: Assemble Public ElectroTools Review APK
+on:
+  push:
+    paths:
+      - '.github/workflows/publish-review-apk.yml'
+      - 'review-apk-bridge/**'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  assemble:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Assemble and cryptographically verify the exact reviewed APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64,hashlib,zipfile
+          expected='b92521f822ea563d4784c3c1121b5ebbca827a40379bfb28a8daeb4fad111877'
+          root=Path('review-apk-bridge')
+          if not root.exists():
+             print('No transfer parts present yet: nothing to publish')
+             raise SystemExit(0)
+          parts=sorted(root.glob('part-*.b64'))
+          assert len(parts)==19,f'Expected 19 parts, got {len(parts)}'
+          for index,part in enumerate(parts):
+             assert part.name==f'part-{index:02d}.b64',part.name
+          encoded=b''.join(part.read_bytes() for part in parts)
+          data=base64.b64decode(encoded,validate=True)
+          digest=hashlib.sha256(data).hexdigest()
+          assert len(data)==18229198,(len(data),digest)
+          assert digest==expected,(digest,expected)
+          dest=Path('downloads/ElectroTools-0.33.3-Review.apk')
+          dest.parent.mkdir(exist_ok=True)
+          dest.write_bytes(data)
+          with zipfile.ZipFile(dest) as z:
+             assert 'AndroidManifest.xml' in z.namelist(),'Not an Android APK'
+             assert 'classes.dex' in z.namelist(),'No Android application classes'
+             assert z.testzip() is None,'Corrupted APK zip entry'
+          Path('downloads/ElectroTools-0.33.3-Review.sha256').write_text(digest+'  '+dest.name+'\n')
+          print(f'APK verified: {dest} ({len(data)} bytes), sha256={digest}')
+          PY
+      - name: Commit public APK and remove temporary chunks
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f downloads/ElectroTools-0.33.3-Review.apk || exit 0
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add downloads/ElectroTools-0.33.3-Review.apk downloads/ElectroTools-0.33.3-Review.sha256
+          git rm -rq review-apk-bridge
+          git commit -m 'Publish verified APK for ElectroTools reviewers'
+          git push origin HEAD:main
