@@ -259,8 +259,10 @@ function initializeProCheckout(){
   const email=document.getElementById('proBuyerEmail').value.trim();
   submit.disabled=true;
   setProMessage('Создаём заказ и защищённую ссылку на оплату...');
+  let checkoutStep='request';
   try{
    const res=await callProAPI('/create-payment',{email});
+   checkoutStep='response';
    if(!res.ok){
     let message;
     const err=res.data||{};
@@ -286,16 +288,36 @@ function initializeProCheckout(){
     setProMessage(message);
     return;
    }
-   const data=res.data;
+   const data=res.data||{};
    if(!/^[a-f0-9-]{36}$/.test(data.orderId||'')|| !/^[A-Za-z0-9_-]{43}$/.test(data.claimToken||''))throw new Error('Incomplete checkout details');
+   checkoutStep='payment_link';
    const paymentURL=new URL(data.paymentUrl);
    if(paymentURL.protocol!=='https:' || !['yookassa.ru','yoomoney.ru'].some(host=>paymentURL.hostname===host||paymentURL.hostname.endsWith('.'+host))){throw new Error('Unrecognized payment URL');}
+   checkoutStep='save_order';
    if(!saveProOrder({orderId:data.orderId,claimToken:data.claimToken,createdAt:Date.now()})){
     setProMessage('Браузер блокирует хранение данных заказа. Оплата не открыта, разрешите хранение данных сайта.');
     return;
    }
+   checkoutStep='redirect';
    window.location.assign(paymentURL.href);
-  }catch(e){setProMessage('Ошибка связи с сервером. Оплата не началась. Попробуйте позже.');}
+  }catch(e){
+   // Expose only a safe failure category; never display license tokens, emails or payment URLs.
+   let message;
+   if(checkoutStep==='request'){
+    message=e?.name==='AbortError'
+     ? 'Сервер оплаты не ответил за 15 секунд. Статус запроса неизвестен. Не нажимайте кнопку повторно, пока не проверите заказ.'
+     : 'Не удалось отправить запрос на создание платежа. Возможна блокировка соединения браузером, VPN или сетью. Проверьте подключение, не нажимайте кнопку многократно.';
+   }else if(checkoutStep==='response'){
+    message='Сервер ответил, но не прислал корректные данные заказа. Повторно оплачивать пока не нужно: проверьте заказ.';
+   }else if(checkoutStep==='payment_link'){
+    message='Сервер вернул данные заказа, но платёжная ссылка неверна или ведёт на неожиданный адрес. Заказ мог быть создан; повторно не нажимайте оплату.';
+   }else if(checkoutStep==='save_order'){
+    message='Не удалось сохранить сведения о заказе в браузере. Оплата не открыта. Разрешите хранение данных сайта.';
+   }else{
+    message='Не удалось открыть платёжную страницу. Если заказ сохранён, откройте его проверку ниже, не создавая новый.';
+   }
+   setProMessage(message);
+  }
   finally{submit.disabled=!checkoutAvailable;}
  });
 }
