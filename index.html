@@ -175,6 +175,7 @@ async function refreshCheckoutAvailability(){
 }
 
 let proPollTimer = null;
+let proClaimInFlight = false;
 function setProMessage(value) { document.getElementById('proCheckoutMessage').textContent=value; }
 function getProOrder() {
  try { const raw=localStorage.getItem(PRO_STORAGE); return raw?JSON.parse(raw):null; }
@@ -198,6 +199,8 @@ async function callProAPI(endpoint, payload) {
 }
 function clearProPoll(){if(proPollTimer!==null){clearInterval(proPollTimer);proPollTimer=null;}}
 async function checkProLicense(order){
+ if(proClaimInFlight)return; // Prevent overlapping claim checks on slow networks.
+ proClaimInFlight=true;
  const section=document.getElementById('proClaimSection');
  const msg=document.getElementById('proClaimMessage');
  const check=document.getElementById('proCheckAgain');
@@ -205,7 +208,7 @@ async function checkProLicense(order){
  check.disabled=true;
  try{
   const result=await callProAPI('/claim-license',{orderId:order.orderId,claimToken:order.claimToken});
-  if(!result.ok){msg.textContent='Не удалось проверить заказ. Попробуйте ещё раз.';return;}
+  if(!result.ok){msg.textContent='Сервер не смог проверить уже сохранённый заказ (HTTP '+result.status+'). Новый платёж создавать не нужно. Попробуйте повторить проверку позже.';return;}
   if(result.data.status==='ready' && /^ETP-(?:[A-HJ-NP-Z2-9]{5}-){3}[A-HJ-NP-Z2-9]{5}$/.test(result.data.licenseKey||'')){
     document.getElementById('proLicenseKey').value=result.data.licenseKey;
     document.getElementById('proKeySection').hidden=false;
@@ -217,8 +220,12 @@ async function checkProLicense(order){
   }else{
     msg.textContent='Платёж ещё проверяется. Если вы уже оплатили, вернитесь на эту страницу и нажмите «Проверить оплату ещё раз».';
   }
- }catch(e){msg.textContent='Временная ошибка сети. Повторите проверку позже.';}
- finally {check.disabled=false;}
+ }catch(e){
+  msg.textContent=e?.name==='AbortError'
+   ? 'Не получен ответ сервера за 15 секунд. Заказ сохранён в этом браузере. Не оплачивайте повторно, повторите только проверку.'
+   : 'Не удалось связаться с сервером проверки ключа. Заказ сохранён в этом браузере. Не оплачивайте повторно, повторите только проверку.';
+ }
+ finally {check.disabled=false;proClaimInFlight=false;}
 }
 function initializeProCheckout(){
  const form=document.getElementById('proCheckoutForm');
